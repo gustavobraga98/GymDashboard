@@ -26,28 +26,27 @@ def evolution():
     st.title('Evolution')
     files = [f for f in os.listdir('monstros') if f.endswith('.csv')]
     file = st.selectbox('Choose a CSV file', files)
+    fig, ax = plt.subplots()
     if file:
         data = pd.read_csv(os.path.join('monstros', file))
         date_column = data.columns[0]
         y_column = st.selectbox('Choose a column for the y-axis', data.columns[1:])
         if date_column and y_column:
-            fig, ax = plt.subplots()
             if len(data) == 1:
                 ax.scatter(data[date_column], data[y_column], label=file)
             else:
                 ax.plot(data[date_column], data[y_column], label=file)
             ax.legend()
-            st.pyplot(fig)
-        if st.button('Compare com os outros monstros'):
-            fig, ax = plt.subplots()
-            for file in files:
-                data = pd.read_csv(os.path.join('monstros', file))
-                if len(data) == 1:
-                    ax.scatter(data[date_column], data[y_column], label=file)
-                else:
-                    ax.plot(data[date_column], data[y_column], label=file)
-            ax.legend()
-            st.pyplot(fig)
+    if st.button('Compare com os outros monstros'):
+        ax.clear()
+        for file in files:
+            data = pd.read_csv(os.path.join('monstros', file))
+            if len(data) == 1:
+                ax.scatter(data[date_column], data[y_column], label=file)
+            else:
+                ax.plot(data[date_column], data[y_column], label=file)
+        ax.legend()
+    st.pyplot(fig)
 
 PAGES = {
     'Sheet': sheet,
