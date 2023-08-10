@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title='Dashboard', layout='wide')
 
 def sheet():
-    st.title('Crie um monstro/Atualize um Monstro')
-    uploaded_file = st.file_uploader('Crie um novo monstro, ou atualize os dados de um', type='csv')
+    st.title('Sheet')
+    uploaded_file = st.file_uploader('Choose a CSV file', type='csv')
     if uploaded_file is not None:
         data = pd.read_csv(uploaded_file)
         st.write(data)
-        if st.button('Salvar monstrão'):
+        if st.button('Save Changes'):
             if not os.path.exists('monstros'):
                 os.makedirs('monstros')
             data.to_csv(os.path.join('monstros', uploaded_file.name), index=False)
@@ -23,7 +23,7 @@ def sheet():
             st.markdown(href, unsafe_allow_html=True)
 
 def evolution():
-    st.title('Evolução')
+    st.title('Evolution')
     files = [f for f in os.listdir('monstros') if f.endswith('.csv')]
     file = st.selectbox('Choose a CSV file', files)
     if file:
@@ -32,13 +32,26 @@ def evolution():
         y_column = st.selectbox('Choose a column for the y-axis', data.columns[1:])
         if date_column and y_column:
             fig, ax = plt.subplots()
-            ax.plot(data[date_column], data[y_column], label=file)
+            if len(data) == 1:
+                ax.scatter(data[date_column], data[y_column], label=file)
+            else:
+                ax.plot(data[date_column], data[y_column], label=file)
+            ax.legend()
+            st.pyplot(fig)
+        if st.button('Compare com os outros monstros'):
+            fig, ax = plt.subplots()
+            for file in files:
+                data = pd.read_csv(os.path.join('monstros', file))
+                if len(data) == 1:
+                    ax.scatter(data[date_column], data[y_column], label=file)
+                else:
+                    ax.plot(data[date_column], data[y_column], label=file)
             ax.legend()
             st.pyplot(fig)
 
 PAGES = {
-    'Crie/Atualize um monstro': sheet,
-    'Evolução': evolution
+    'Sheet': sheet,
+    'Evolution': evolution
 }
 
 st.sidebar.title('Navigation')
